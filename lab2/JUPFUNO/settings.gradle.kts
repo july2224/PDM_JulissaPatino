@@ -22,6 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "LAB1.1"
+rootProject.name = "JUPFUNO"
 include(":app")
- 
