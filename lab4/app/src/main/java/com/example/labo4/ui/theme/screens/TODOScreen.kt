@@ -8,12 +8,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.labo4.data.model.Task
-import com.example.labo4.components.TaskCard
 import com.example.labo4.viewmodel.GeneralViewModel
+import java.text.SimpleDateFormat
 import java.util.Date
+import java.util.Locale
 
 data class CustomCardData(
     val pos: Int,
@@ -27,10 +29,11 @@ data class CustomCardData(
 fun TODOScreen(viewModel: GeneralViewModel, modifier: Modifier = Modifier) {
     val tasks = viewModel.tasks.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
-    val newCard = remember { mutableStateOf(CustomCardData(1, "",
-        "", Date(), false)) }
+    val newCard = remember { mutableStateOf(CustomCardData(1, "", "", Date(), false)) }
     var tempTitle by remember { mutableStateOf("") }
     var tempDesc by remember { mutableStateOf("") }
+
+    val dateFormatter = remember { SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) }
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -70,8 +73,35 @@ fun TODOScreen(viewModel: GeneralViewModel, modifier: Modifier = Modifier) {
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(tasks.value) { task ->
-                    TaskCard(task = task)
+                items(lista) { cardItem ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(text = cardItem.title, style = MaterialTheme.typography.titleMedium)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(text = cardItem.description, style = MaterialTheme.typography.bodyMedium)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "Due: ${dateFormatter.format(cardItem.endDate)}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+
+                            Checkbox(
+                                checked = cardItem.checked,
+                                onCheckedChange = { /* Solo vista */ }
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -91,7 +121,7 @@ fun TODOScreen(viewModel: GeneralViewModel, modifier: Modifier = Modifier) {
                         OutlinedTextField(
                             value = tempDesc,
                             onValueChange = { tempDesc = it },
-                            label = { Text("Descripcion?") },
+                            label = { Text("Descripcion") },
                             modifier = Modifier.fillMaxWidth()
                         )
                     }
@@ -116,6 +146,7 @@ fun TODOScreen(viewModel: GeneralViewModel, modifier: Modifier = Modifier) {
                                     isCompleted = newCard.value.checked
                                 )
                                 viewModel.addTask(task)
+
                                 tempTitle = ""
                                 tempDesc = ""
                                 showDialog = false
