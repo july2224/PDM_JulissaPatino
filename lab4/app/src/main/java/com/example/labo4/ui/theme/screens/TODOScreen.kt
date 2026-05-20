@@ -147,7 +147,6 @@ fun TODOScreen(viewModel: GeneralViewModel, modifier: Modifier = Modifier) {
                                     isCompleted = newCard.value.checked
                                 )
                                 viewModel.addTask(task)
-
                                 tempTitle = ""
                                 tempDesc = ""
                                 showDialog = false
