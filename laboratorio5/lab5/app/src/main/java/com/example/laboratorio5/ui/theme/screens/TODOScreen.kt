@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,9 @@ import androidx.compose.ui.unit.dp
 import com.example.laboratorio5.InitDatabase
 import com.example.laboratorio5.Post
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun TODOScreen(modifier: Modifier = Modifier) {
@@ -39,7 +43,20 @@ fun TODOScreen(modifier: Modifier = Modifier) {
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            Text(text = "Mi lista de tareas", style = MaterialTheme.typography.headlineMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(text = "Mi lista de tareas", style = MaterialTheme.typography.headlineMedium)
+                IconButton(onClick = {
+                    coroutineScope.launch {
+                        postDao.deleteAllPosts()
+                    }
+                }) {
+                    Icon(Icons.Default.Delete, contentDescription = "Borrar todo", tint = MaterialTheme.colorScheme.error)
+                }
+            }
             Spacer(modifier = Modifier.height(16.dp))
 
             LazyColumn(
@@ -61,6 +78,12 @@ fun TODOScreen(modifier: Modifier = Modifier) {
                                 Text(text = post.title, style = MaterialTheme.typography.titleMedium)
                                 Spacer(modifier = Modifier.height(4.dp))
                                 Text(text = post.content, style = MaterialTheme.typography.bodyMedium)
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = post.date,
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
@@ -94,10 +117,13 @@ fun TODOScreen(modifier: Modifier = Modifier) {
                         onClick = {
                             if (tempTitle.isNotBlank()) {
                                 coroutineScope.launch {
+                                    val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+                                    val currentDate = sdf.format(Date())
                                     val newPost = Post(
                                         id = (posts.maxOfOrNull { it.id } ?: 0) + 1,
                                         title = tempTitle,
-                                        content = tempContent
+                                        content = tempContent,
+                                        date = currentDate
                                     )
                                     postDao.insertPost(newPost)
                                     tempTitle = ""
