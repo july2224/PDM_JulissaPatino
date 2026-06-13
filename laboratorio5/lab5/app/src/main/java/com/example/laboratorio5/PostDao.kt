@@ -13,4 +13,7 @@ interface PostDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertPost(post: Post)
+
+    @Query("DELETE FROM posts")
+    suspend fun deleteAllPosts()
 }
